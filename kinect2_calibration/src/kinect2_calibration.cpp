@@ -168,12 +168,54 @@ private:
   bool dump_calibration_data_callback(std_srvs::Trigger::Request &req,
                             std_srvs::Trigger::Response &res)
   {
-      lock.lock();
-      store(this->color, this->ir, this->irGrey, this->depth,
-            this->pointsColor, this->pointsIr);
-      lock.unlock();
-      res.success = true;
-      return true;
+    lock.lock();
+    this->color = color;
+    this->ir = ir;
+    this->irGrey = irGrey;
+    this->depth = depth;
+    this->foundColor = foundColor;
+    this->foundIr = foundIr;
+    this->pointsColor = pointsColor;
+    this->pointsIr = pointsIr;
+    lock.unlock();
+
+    std::ostringstream oss;
+    oss << std::setfill('0') << std::setw(4) << frame++;
+    const std::string frameNumber(oss.str());
+    OUT_INFO("storing frame: " << frameNumber);
+    std::string base = path + frameNumber;
+
+    for(size_t i = 0; i < pointsIr.size(); ++i)
+    {
+      pointsIr[i].x /= 2.0;
+      pointsIr[i].y /= 2.0;
+    }
+
+    if(mode == SYNC)
+    {
+      base += CALIB_SYNC;
+    }
+
+    if((mode == COLOR || mode == SYNC) && foundColor)
+    {
+      cv::imwrite(base + CALIB_FILE_COLOR, color, params);
+
+      cv::FileStorage file(base + CALIB_POINTS_COLOR, cv::FileStorage::WRITE);
+      file << "points" << pointsColor;
+    }
+
+    if((mode == IR || mode == SYNC) && foundIr)
+    {
+      cv::imwrite(base + CALIB_FILE_IR, ir, params);
+      cv::imwrite(base + CALIB_FILE_IR_GREY, irGrey, params);
+      cv::imwrite(base + CALIB_FILE_DEPTH, depth, params);
+
+      cv::FileStorage file(base + CALIB_POINTS_IR, cv::FileStorage::WRITE);
+      file << "points" << pointsIr;
+    }
+
+    res.success = true;
+    return true;
   }
 
   void startRecord()
