@@ -151,10 +151,12 @@ public:
 
     if(mode == SYNC)
     {
-        cv::namedWindow("color", WINDOW_NORMAL);
+        cv::namedWindow("color", cv::WINDOW_NORMAL);
         cv::resizeWindow("color", 960, 540);
-        cv::namedWindow("ir", WINDOW_NORMAL);
-        cv::resizeWindow("ir", 512, 424);
+
+        cv::namedWindow("ir", cv::WINDOW_NORMAL);
+        cv::resizeWindow("ir", 816, 672);
+        cv::moveWindow("ir", 1060, 0);
     }
     startRecord();
 
