@@ -47,6 +47,8 @@
 #include <kinect2_calibration/kinect2_calibration_definitions.h>
 #include <kinect2_bridge/kinect2_definitions.h>
 
+#include <std_srvs/Trigger.h>
+
 
 enum Mode
 {
@@ -143,6 +145,9 @@ public:
 
   void run()
   {
+    ros::ServiceServer service = nh.advertiseService(
+      "dump_calibration_data", &Recorder::dump_calibration_data_callback,
+      this);
     startRecord();
 
     display();
@@ -151,6 +156,18 @@ public:
   }
 
 private:
+
+  bool dump_calibration_data_callback(std_srvs::Trigger::Request &req,
+                            std_srvs::Trigger::Response &res)
+  {
+      lock.lock();
+      store(this->color, this->ir, this->irGrey, this->depth,
+            this->pointsColor, this->pointsIr);
+      lock.unlock();
+      res.success = true;
+      return true;
+  }
+
   void startRecord()
   {
     OUT_INFO("Controls:" << std::endl
