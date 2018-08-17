@@ -1,0 +1,11 @@
+<launch>
+  <arg name="path" default="$(find kinect2_calibration)/data/"/>
+  <node pkg="kinect2_bridge" name="kinect2_bridge" type="kinect2_bridge"
+        output="screen">
+    <param name="fps_limit" value="5"/>
+  </node>
+
+  <node pkg="kinect2_calibration" name="kinect2_calibration"
+        type="kinect2_calibration" output="screen"
+        args="chess5x7x0.03 record sync -path $(arg path)"/>
+</launch>
