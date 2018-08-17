@@ -148,6 +148,14 @@ public:
     ros::ServiceServer service = nh.advertiseService(
       "dump_calibration_data", &Recorder::dump_calibration_data_callback,
       this);
+
+    if(mode == SYNC)
+    {
+        cv::namedWindow("color", WINDOW_NORMAL);
+        cv::resizeWindow("color", 960, 540);
+        cv::namedWindow("ir", WINDOW_NORMAL);
+        cv::resizeWindow("ir", 512, 424);
+    }
     startRecord();
 
     display();
